@@ -20,12 +20,12 @@ public class UserController {
         this.userService = userService;
     }
 
-    @GetMapping("/users")
+    @GetMapping("/get-all-users")
     public List getAllUsers() throws SQLException {
         return userService.getAllUsers();
     }
 
-    @GetMapping("/user")
+    @GetMapping("/get-user")
     public UserModel getUser(@RequestParam int id) {
         return userService.getUser(id); //return new UserModel(1, "Stefan", "Statenweg 13", 22);
     }
