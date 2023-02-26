@@ -52,8 +52,34 @@ public class UserService {
         return users;
     }
 
-    public UserModel getUser (int id) {
-        return new UserModel(id, 1, "Stefan", "Meier", "stefan@meijer.nl", "welcome10");
+    public UserModel getUser (int user_id) {
+        UserModel user = null;
+        ResultSet result;
+
+        try (PreparedStatement stmt = getConnection().prepareStatement("SELECT * FROM USER WHERE ID = ?")) {
+            /* Set user_id on ? */
+            stmt.setInt(1,user_id);
+            /* Execute statement */
+            result = stmt.executeQuery();
+
+            /* Loop over results */
+            while (result.next()) {
+                /* Get all data from result */
+                int id = result.getInt(1); // result[1] = id
+                int role_id = result.getInt(2); // result[2] = role_id
+                String first_name = result.getString(3); // result[3] = first_name
+                String last_name = result.getString(4); // result[4] = last_name
+                String email = result.getString(5); // result[5] = email
+                String password = result.getString(6); // result[6] = password
+
+                /* Add user to list of users */
+                user = new UserModel(id, role_id, first_name, last_name, email, password);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return user;
     }
 
     /**

@@ -22,11 +22,23 @@ public class UserController {
 
     @GetMapping("/get-all-users")
     public List getAllUsers() throws SQLException {
-        return userService.getAllUsers();
+        return userService.getAllUsers(); // [ {}, {} ]
     }
 
     @GetMapping("/get-user")
     public UserModel getUser(@RequestParam int id) {
-        return userService.getUser(id); //return new UserModel(1, "Stefan", "Statenweg 13", 22);
+        return userService.getUser(id); // {}
+    }
+
+    public void createUser () {
+
+    }
+
+    public void deleteUser () {
+
+    }
+
+    public void updateUser () {
+
     }
 }
