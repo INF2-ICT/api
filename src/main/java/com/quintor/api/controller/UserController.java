@@ -22,15 +22,7 @@ public class UserController {
 
     @GetMapping("/users")
     public List getAllUsers() throws SQLException {
-        if (userService.getAllUsers() != null) {
-            return userService.getAllUsers();
-        } else {
-            List<UserModel> test = new ArrayList<>();
-
-            test.add(new UserModel(1, 1, "Stefan", "Meijer", "stefan@meijer.nl", "welkom10"));
-            test.add(new UserModel(2, 1, "Banko", "Town", "town@meijer.nl", "welkom10"));
-            return test;
-        }
+        return userService.getAllUsers();
     }
 
     @GetMapping("/user")
