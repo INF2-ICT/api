@@ -3,13 +3,14 @@ package com.quintor.api.controller;
 import com.quintor.api.model.UserModel;
 import com.quintor.api.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.quintor.api.util.ProjectConfigUtil.checkApiKey;
 
 @RestController
 public class UserController {
@@ -21,24 +22,34 @@ public class UserController {
     }
 
     @GetMapping("/get-all-users")
-    public List getAllUsers() throws SQLException {
-        return userService.getAllUsers(); // [ {}, {} ]
+    public List getAllUsers(@RequestHeader String apikey) throws Exception {
+        //Check if api key is correct
+        if (checkApiKey(apikey)) {
+            return userService.getAllUsers(); // [ {}, {} ]
+        } else {
+            throw new Exception("Invalid API key");
+        }
     }
 
     @GetMapping("/get-user")
-    public UserModel getUser(@RequestParam int id) {
-        return userService.getUser(id); // {}
+    public UserModel getUser(@RequestHeader String apikey, @RequestParam int id) throws Exception {
+        //Check if api key is correct
+        if (checkApiKey(apikey)) {
+            return userService.getUser(id); // {}
+        } else {
+            throw new Exception("Invalid API key");
+        }
     }
 
-    public void createUser () {
+    public void createUser (@RequestHeader String apikey) {
 
     }
 
-    public void deleteUser () {
+    public void deleteUser (@RequestHeader String apikey) {
 
     }
 
-    public void updateUser () {
+    public void updateUser (@RequestHeader String apikey) {
 
     }
 }

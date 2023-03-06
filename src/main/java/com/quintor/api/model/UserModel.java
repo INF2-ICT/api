@@ -1,10 +1,17 @@
 package com.quintor.api.model;
 
+import org.springframework.data.annotation.Id;
+import org.springframework.lang.NonNull;
+
 public class UserModel {
 
+    @Id
     private int id;
+    @Id
     private int role_ID;
+    @NonNull
     private String first_name;
+    @NonNull
     private String last_name;
     private String email;
     private String password;
