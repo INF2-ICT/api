@@ -40,16 +40,4 @@ public class UserController {
             throw new Exception("Invalid API key");
         }
     }
-
-    public void createUser (@RequestHeader String apikey) {
-
-    }
-
-    public void deleteUser (@RequestHeader String apikey) {
-
-    }
-
-    public void updateUser (@RequestHeader String apikey) {
-
-    }
 }
