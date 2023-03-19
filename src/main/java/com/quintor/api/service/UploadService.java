@@ -44,6 +44,18 @@ public class UploadService {
 
             uploadMT940(reference, account, date, startingBalance, closingBalance);
 
+            for (int i = 0; i < document.getElementsByTagName("amount").getLength()-2; i++) {
+                Date valueDate; // TODO parse to date
+                Date entryDate; // TODO parse to date
+                String type = document.getElementsByTagName("creditDebit").item(i).getTextContent();
+                Double amount = Double.parseDouble(document.getElementsByTagName("amount").item(i+1).getTextContent());
+                String code = document.getElementsByTagName("identifierCode").item(i).getTextContent();
+                String customerReference = document.getElementsByTagName("customerReference").item(i).getTextContent();
+                String bankReference = document.getElementsByTagName("bankReference").item(i).getTextContent();
+                String supplementaryDetails = document.getElementsByTagName("supplementaryDetails").item(i).getTextContent();
+                uploadTransacion(reference, valueDate, entryDate, date, type, amount, code, customerReference, bankReference, supplementaryDetails);
+            }
+
         } catch (IOException | ParserConfigurationException | SAXException | SQLException e) {
             System.out.println(e.getMessage());
         }
@@ -59,6 +71,33 @@ public class UploadService {
         statement.setDate(3, date);
         statement.setDouble(4, startingBalance);
         statement.setDouble(5, closingBalance);
+
+        statement.executeQuery();
+    }
+
+    public void uploadTransacion(String reference,
+                                 Date valueDate,
+                                 Date entryDate,
+                                 String type,
+                                 Double amount,
+                                 String code,
+                                 String customerReference,
+                                 String bankReference,
+                                 String supplementaryDetails) throws SQLException {
+
+        String query = "{ CALL add_transaction(?, ?, ?, ?, ?, ?, ?, ?, ?)}";
+
+        CallableStatement statement = connection.prepareCall(query);
+
+        statement.setString(1, reference);
+        statement.setDate(2, valueDate);
+        statement.setDate(3, entryDate);
+        statement.setString(4, type);
+        statement.setDouble(5, amount);
+        statement.setString(6, code);
+        statement.setString(7, customerReference);
+        statement.setString(8, bankReference);
+        statement.setString(9, supplementaryDetails);
 
         statement.executeQuery();
     }
