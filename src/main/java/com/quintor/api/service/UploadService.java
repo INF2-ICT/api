@@ -33,9 +33,9 @@ public class UploadService {
             String reference = document.getElementsByTagName("reference").item(0).getTextContent();
             String account = document.getElementsByTagName("account").item(0).getTextContent();
 
-            int day = Integer.parseInt(document.getElementsByTagName("date").item(0).getTextContent().substring(0,2));
+            int day = Integer.parseInt(document.getElementsByTagName("date").item(0).getTextContent().substring(4,6));
             int month = Integer.parseInt(document.getElementsByTagName("date").item(0).getTextContent().substring(2,4))-1;
-            int year = 100 + Integer.parseInt(document.getElementsByTagName("date").item(0).getTextContent().substring(4));
+            int year = 100 + Integer.parseInt(document.getElementsByTagName("date").item(0).getTextContent().substring(0,2));
             Date date = new Date(year, month, day);
 
             double startingBalance = Double.parseDouble(document.getElementsByTagName("amount").item(0).getTextContent().replace(",","."));
@@ -45,15 +45,20 @@ public class UploadService {
             uploadMT940(reference, account, date, startingBalance, closingBalance);
 
             for (int i = 0; i < document.getElementsByTagName("amount").getLength()-2; i++) {
-                Date valueDate; // TODO parse to date
-                Date entryDate; // TODO parse to date
+                int valueDay = Integer.parseInt(document.getElementsByTagName("valueDate").item(i).getTextContent().substring(4, 6));
+                int valueMonth = Integer.parseInt(document.getElementsByTagName("valueDate").item(i).getTextContent().substring(2,4))-1;
+                int valueYear = 100 + Integer.parseInt(document.getElementsByTagName("valueDate").item(i).getTextContent().substring(0, 2));
+                Date valueDate = new Date(valueYear, valueMonth, valueDay);
+                int entryDay = Integer.parseInt(document.getElementsByTagName("entryDate").item(i).getTextContent().substring(2,4));
+                int entryMonth = Integer.parseInt((document.getElementsByTagName("entryDate").item(i).getTextContent().substring(0, 2)));
+                Date entryDate = new Date(valueYear, entryMonth, entryDay);
                 String type = document.getElementsByTagName("creditDebit").item(i).getTextContent();
-                Double amount = Double.parseDouble(document.getElementsByTagName("amount").item(i+1).getTextContent());
+                Double amount = Double.parseDouble(document.getElementsByTagName("amount").item(i+1).getTextContent().replace(",","."));
                 String code = document.getElementsByTagName("identifierCode").item(i).getTextContent();
                 String customerReference = document.getElementsByTagName("customerReference").item(i).getTextContent();
                 String bankReference = document.getElementsByTagName("bankReference").item(i).getTextContent();
                 String supplementaryDetails = document.getElementsByTagName("supplementaryDetails").item(i).getTextContent();
-                uploadTransacion(reference, valueDate, entryDate, date, type, amount, code, customerReference, bankReference, supplementaryDetails);
+                uploadTransacion(reference, valueDate, entryDate, type, amount, code, customerReference, bankReference, supplementaryDetails);
             }
 
         } catch (IOException | ParserConfigurationException | SAXException | SQLException e) {
