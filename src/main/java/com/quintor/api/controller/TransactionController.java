@@ -7,13 +7,14 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
 import static com.quintor.api.util.ProjectConfigUtil.checkApiKey;
 
 // Define a controller class for handling transactions
-@Controller
+@RestController
 public class TransactionController {
 
     // Inject the transaction service into the controller using the @Autowired annotation
