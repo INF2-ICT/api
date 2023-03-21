@@ -19,7 +19,7 @@ public class UploadController {
     }
 
     @PostMapping("/post-xml")
-    public void postXml(/**@RequestHeader String apikey,*/@RequestParam("xml") MultipartFile xml) {//throws Exception{
+    public void postXml(/**@RequestHeader String apikey,*/@RequestParam("xml") String xml) {//throws Exception{
         //Check if api key is correct
 //        if (!checkApiKey(apikey)) {
 //            throw new Exception("Invalid API key");
@@ -35,7 +35,7 @@ public class UploadController {
 //        }
 //        uploadService.uploadXML(json);
 
-        System.out.println(json);
+        uploadService.uploadJson(json);
         return "success";
     }
 }

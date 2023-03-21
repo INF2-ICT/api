@@ -1,19 +1,23 @@
 package com.quintor.api.service;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.quintor.api.util.RelationalDatabaseUtil;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.w3c.dom.Document;
+import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
+import java.io.StringReader;
+import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.SQLException;
-import java.sql.CallableStatement;
 
 
 @Service
@@ -24,11 +28,11 @@ public class UploadService {
         this.connection = RelationalDatabaseUtil.getConnection();
     }
 
-    public void uploadXML (MultipartFile xml) {
+    public void uploadXML (String xml) {
         try {
             DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
-            Document document = documentBuilder.parse(xml.getInputStream());
+            Document document = documentBuilder.parse(new InputSource(new StringReader(xml)));
 
             String reference = document.getElementsByTagName("reference").item(0).getTextContent();
             String account = document.getElementsByTagName("account").item(0).getTextContent();
@@ -62,6 +66,29 @@ public class UploadService {
             }
 
         } catch (IOException | ParserConfigurationException | SAXException | SQLException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    public void uploadJson(String json) {
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode rootNode = mapper.readTree(json);
+            String reference = rootNode.get("MT940").get("line25").get("account").asText();
+            System.out.println(reference);
+//            String account = rootNode.get("account").asText();
+//            int day = Integer.parseInt(rootNode.get("date").asText().substring(4,6));
+//            int month = Integer.parseInt(rootNode.get("date").asText().substring(2,4))-1;
+//            int year = 100 + Integer.parseInt(rootNode.get("date").asText().substring(0,2));
+//            Date date = new Date(year, month, day);
+//            double startingBalance = Double.parseDouble(rootNode.get("amount").asText().replace(",","."));
+//            int endOfNode = 0;//rootNode.get("amount").get .size()-1;
+//            double closingBalance = 0.0;//Double.parseDouble(rootNode.findValues("amount"). .asText().replace(",","."));
+
+            //uploadMT940(reference, account, date, startingBalance, closingBalance);
+
+
+        } catch (IOException e) {
             System.out.println(e.getMessage());
         }
     }
