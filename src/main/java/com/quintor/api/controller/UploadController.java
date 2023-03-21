@@ -1,6 +1,8 @@
 package com.quintor.api.controller;
 
+import com.quintor.api.interfaces.Validatable;
 import com.quintor.api.service.UploadService;
+import com.quintor.api.util.JsonValidateUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -29,13 +31,24 @@ public class UploadController {
 
     @PostMapping("/post-json")
     public String postJson(@RequestParam("json") String json) throws Exception {
+        System.out.println(json);
         //Check if api key is correct
 //        if (!checkApiKey(apikey)) {
 //            throw new Exception("Invalid API key");
 //        }
-//        uploadService.uploadXML(json);
 
-        uploadService.uploadJson(json);
+        //Validate with schema
+        Validatable validator = new JsonValidateUtil();
+        if (validator.validate("mt940.json", json)) {
+            System.out.println("Helemaaaal goud!");
+        } else {
+            System.out.println("Neit goud");
+        }
+
+        //Upload to database
+        uploadService.uploadJSON(json);
+
+        //Return something back to application that all went right
         return "success";
     }
 }
