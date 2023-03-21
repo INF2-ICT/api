@@ -24,6 +24,10 @@ public class UploadService {
         this.connection = RelationalDatabaseUtil.getConnection();
     }
 
+    public void uploadJSON (String json) {
+
+    }
+
     public void uploadXML (MultipartFile xml) {
         try {
             DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
