@@ -46,7 +46,7 @@ public class UploadController {
         }
 
         //Upload to database
-        uploadService.uploadJSON(json);
+//        uploadService.uploadJSON(json);
 
         //Return something back to application that all went right
         return "success";
