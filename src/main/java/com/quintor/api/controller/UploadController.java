@@ -40,9 +40,9 @@ public class UploadController {
         //Validate with schema
         Validatable validator = new JsonValidateUtil();
         if (validator.validate("mt940.json", json)) {
-            System.out.println("Helemaaaal goud!");
+            System.out.println("Success!");
         } else {
-            System.out.println("Neit goud");
+            System.out.println("Something went wrong");
         }
 
         //Upload to database
