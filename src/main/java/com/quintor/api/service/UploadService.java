@@ -34,17 +34,23 @@ public class UploadService {
 
             String reference = document.getElementsByTagName("reference").item(0).getTextContent();
             String account = document.getElementsByTagName("account").item(0).getTextContent();
+            String statementNR = document.getElementsByTagName("statementNumber").item(0).getTextContent();
+            String sequenceNR = document.getElementsByTagName("sequenceNumber").item(0).getTextContent();
+
+            String creditDebit = document.getElementsByTagName("creditDebit").item(0).getTextContent();
 
             int day = Integer.parseInt(document.getElementsByTagName("date").item(0).getTextContent().substring(4,6));
             int month = Integer.parseInt(document.getElementsByTagName("date").item(0).getTextContent().substring(2,4))-1;
             int year = 100 + Integer.parseInt(document.getElementsByTagName("date").item(0).getTextContent().substring(0,2));
             Date date = new Date(year, month, day);
 
+            String currency = document.getElementsByTagName("currency").item(0).getTextContent();
+
             double startingBalance = Double.parseDouble(document.getElementsByTagName("amount").item(0).getTextContent().replace(",","."));
             int endOfNode = document.getElementsByTagName("amount").getLength()-1;
             double closingBalance = Double.parseDouble(document.getElementsByTagName("amount").item(endOfNode).getTextContent().replace(",","."));
 
-            uploadMT940(reference, account, date, startingBalance, closingBalance);
+            uploadMT940(reference, account, statementNR, sequenceNR, creditDebit, date, currency, startingBalance, closingBalance);
 
             for (int i = 0; i < document.getElementsByTagName("amount").getLength()-2; i++) {
                 int valueDay = Integer.parseInt(document.getElementsByTagName("valueDate").item(i).getTextContent().substring(4, 6));
@@ -52,15 +58,22 @@ public class UploadService {
                 int valueYear = 100 + Integer.parseInt(document.getElementsByTagName("valueDate").item(i).getTextContent().substring(0, 2));
                 Date valueDate = new Date(valueYear, valueMonth, valueDay);
                 int entryDay = Integer.parseInt(document.getElementsByTagName("entryDate").item(i).getTextContent().substring(2,4));
-                int entryMonth = Integer.parseInt((document.getElementsByTagName("entryDate").item(i).getTextContent().substring(0, 2)));
+                int entryMonth = Integer.parseInt(document.getElementsByTagName("entryDate").item(i).getTextContent().substring(0, 2))-1;
                 Date entryDate = new Date(valueYear, entryMonth, entryDay);
                 String type = document.getElementsByTagName("creditDebit").item(i).getTextContent();
+                String fundCode = document.getElementsByTagName("fundCode").item(i).getTextContent();
                 Double amount = Double.parseDouble(document.getElementsByTagName("amount").item(i+1).getTextContent().replace(",","."));
-                String code = document.getElementsByTagName("identifierCode").item(i).getTextContent();
+                String identifierCode = document.getElementsByTagName("identifierCode").item(i).getTextContent();
                 String customerReference = document.getElementsByTagName("customerReference").item(i).getTextContent();
                 String bankReference = document.getElementsByTagName("bankReference").item(i).getTextContent();
                 String supplementaryDetails = document.getElementsByTagName("supplementaryDetails").item(i).getTextContent();
-                uploadTransacion(reference, valueDate, entryDate, type, amount, code, customerReference, bankReference, supplementaryDetails);
+                String line1 = document.getElementsByTagName("line1").item(i).getTextContent();
+                String line2 = document.getElementsByTagName("line2").item(i).getTextContent();
+                String line3 = document.getElementsByTagName("line3").item(i).getTextContent();
+                String line4 = document.getElementsByTagName("line4").item(i).getTextContent();
+                String line5 = document.getElementsByTagName("line5").item(i).getTextContent();
+                String line6 = document.getElementsByTagName("line6").item(i).getTextContent();
+                uploadTransacion(reference, valueDate, entryDate, type, fundCode, amount, identifierCode, customerReference, bankReference, supplementaryDetails, line1, line2, line3, line4, line5, line6);
             }
 
         } catch (IOException | ParserConfigurationException | SAXException | SQLException e) {
@@ -89,7 +102,7 @@ public class UploadService {
                 int valueYear = 100 + Integer.parseInt(rootNode.get("MT940").get("statements").get("statement"+i).get("line61").get("valueDate").asText().substring(0, 2));
                 Date valueDate = new Date(valueYear, valueMonth, valueDay);
                 int entryDay = Integer.parseInt(rootNode.get("MT940").get("statements").get("statement"+i).get("line61").get("entryDate").asText().substring(2,4));
-                int entryMonth = Integer.parseInt((rootNode.get("MT940").get("statements").get("statement"+i).get("line61").get("entryDate").asText().substring(0, 2)));
+                int entryMonth = Integer.parseInt(rootNode.get("MT940").get("statements").get("statement"+i).get("line61").get("entryDate").asText().substring(0, 2))-1;
                 Date entryDate = new Date(valueYear, entryMonth, entryDay);
                 String type = rootNode.get("MT940").get("statements").get("statement"+i).get("line61").get("creditDebit").asText();
                 Double amount = Double.parseDouble(rootNode.get("MT940").get("statements").get("statement"+i).get("line61").get("amount").asText().replace(",","."));
@@ -105,16 +118,30 @@ public class UploadService {
         }
     }
 
-    public void uploadMT940(String reference, String account, Date date, double startingBalance, double closingBalance) throws SQLException {
-        String query = "{ CALL add_MT940(?, ?, ?, ?, ?)}";
+    public void uploadMT940(String reference,
+                            String account,
+                            String statementNR,
+                            String sequenceNR,
+                            String creditDebit,
+                            Date date,
+                            String currency,
+                            double startingBalance,
+                            double closingBalance)
+            throws SQLException {
+
+        String query = "{ CALL add_MT940(?, ?, ?, ?, ?, ?, ?, ?, ?)}";
 
         CallableStatement statement = connection.prepareCall(query);
 
         statement.setString(1, reference);
         statement.setString(2, account);
-        statement.setDate(3, date);
-        statement.setDouble(4, startingBalance);
-        statement.setDouble(5, closingBalance);
+        statement.setString(3, statementNR);
+        statement.setString(4, sequenceNR);
+        statement.setString(5, creditDebit);
+        statement.setDate(6, date);
+        statement.setString(7, currency);
+        statement.setDouble(8, startingBalance);
+        statement.setDouble(9, closingBalance);
 
         statement.executeQuery();
     }
@@ -123,13 +150,20 @@ public class UploadService {
                                  Date valueDate,
                                  Date entryDate,
                                  String type,
+                                 String fundCode,
                                  Double amount,
-                                 String code,
+                                 String idCode,
                                  String customerReference,
                                  String bankReference,
-                                 String supplementaryDetails) throws SQLException {
+                                 String supplementaryDetails,
+                                 String line1,
+                                 String line2,
+                                 String line3,
+                                 String line4,
+                                 String line5,
+                                 String line6) throws SQLException {
 
-        String query = "{ CALL add_transaction(?, ?, ?, ?, ?, ?, ?, ?, ?)}";
+        String query = "{ CALL add_transaction(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)}";
 
         CallableStatement statement = connection.prepareCall(query);
 
@@ -137,11 +171,18 @@ public class UploadService {
         statement.setDate(2, valueDate);
         statement.setDate(3, entryDate);
         statement.setString(4, type);
-        statement.setDouble(5, amount);
-        statement.setString(6, code);
-        statement.setString(7, customerReference);
-        statement.setString(8, bankReference);
-        statement.setString(9, supplementaryDetails);
+        statement.setString(5, fundCode);
+        statement.setDouble(6, amount);
+        statement.setString(7, idCode);
+        statement.setString(8, customerReference);
+        statement.setString(9, bankReference);
+        statement.setString(10, supplementaryDetails);
+        statement.setString(11, line1);
+        statement.setString(12, line2);
+        statement.setString(13, line3);
+        statement.setString(14, line4);
+        statement.setString(15, line5);
+        statement.setString(16, line6);
 
         statement.executeQuery();
     }
