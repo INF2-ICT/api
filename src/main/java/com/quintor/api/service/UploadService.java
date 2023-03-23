@@ -31,27 +31,20 @@ public class UploadService {
             DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
             Document document = documentBuilder.parse(new InputSource(new StringReader(xml)));
-
             String reference = document.getElementsByTagName("reference").item(0).getTextContent();
             String account = document.getElementsByTagName("account").item(0).getTextContent();
             String statementNR = document.getElementsByTagName("statementNumber").item(0).getTextContent();
             String sequenceNR = document.getElementsByTagName("sequenceNumber").item(0).getTextContent();
-
             String creditDebit = document.getElementsByTagName("creditDebit").item(0).getTextContent();
-
             int day = Integer.parseInt(document.getElementsByTagName("date").item(0).getTextContent().substring(4,6));
             int month = Integer.parseInt(document.getElementsByTagName("date").item(0).getTextContent().substring(2,4))-1;
             int year = 100 + Integer.parseInt(document.getElementsByTagName("date").item(0).getTextContent().substring(0,2));
             Date date = new Date(year, month, day);
-
             String currency = document.getElementsByTagName("currency").item(0).getTextContent();
-
             double startingBalance = Double.parseDouble(document.getElementsByTagName("amount").item(0).getTextContent().replace(",","."));
             int endOfNode = document.getElementsByTagName("amount").getLength()-1;
             double closingBalance = Double.parseDouble(document.getElementsByTagName("amount").item(endOfNode).getTextContent().replace(",","."));
-
             uploadMT940(reference, account, statementNR, sequenceNR, creditDebit, date, currency, startingBalance, closingBalance);
-
             for (int i = 0; i < document.getElementsByTagName("amount").getLength()-2; i++) {
                 int valueDay = Integer.parseInt(document.getElementsByTagName("valueDate").item(i).getTextContent().substring(4, 6));
                 int valueMonth = Integer.parseInt(document.getElementsByTagName("valueDate").item(i).getTextContent().substring(2,4))-1;
@@ -87,15 +80,17 @@ public class UploadService {
             JsonNode rootNode = mapper.readTree(json);
             String reference = rootNode.get("MT940").get("line20").get("reference").asText();
             String account = rootNode.get("MT940").get("line25").get("account").asText();
+            String statementNR = rootNode.get("MT940").get("line28C").get("statementNumber").asText();
+            String sequenceNR = rootNode.get("MT940").get("line28C").get("sequenceNumber").asText();
+            String creditDebit = rootNode.get("MT940").get("line60F").get("creditDebit").asText();
             int day = Integer.parseInt(rootNode.get("MT940").get("line60F").get("date").asText().substring(4,6));
             int month = Integer.parseInt(rootNode.get("MT940").get("line60F").get("date").asText().substring(2,4))-1;
             int year = 100 + Integer.parseInt(rootNode.get("MT940").get("line60F").get("date").asText().substring(0,2));
             Date date = new Date(year, month, day);
+            String curency = rootNode.get("MT940").get("line60F").get("currency").asText();
             double startingBalance = Double.parseDouble(rootNode.get("MT940").get("line60F").get("amount").asText().replace(",","."));
             double closingBalance = Double.parseDouble(rootNode.get("MT940").get("line62F").get("amount").asText().replace(",","."));
-
-            uploadMT940(reference, account, date, startingBalance, closingBalance);
-
+            uploadMT940(reference, account, statementNR, sequenceNR, creditDebit, date, curency, startingBalance, closingBalance);
             for (int i = 0; i < rootNode.get("MT940").get("statements").size(); i++) {
                 int valueDay = Integer.parseInt(rootNode.get("MT940").get("statements").get("statement"+i).get("line61").get("valueDate").asText().substring(4, 6));
                 int valueMonth = Integer.parseInt(rootNode.get("MT940").get("statements").get("statement"+i).get("line61").get("valueDate").asText().substring(2,4))-1;
@@ -105,12 +100,19 @@ public class UploadService {
                 int entryMonth = Integer.parseInt(rootNode.get("MT940").get("statements").get("statement"+i).get("line61").get("entryDate").asText().substring(0, 2))-1;
                 Date entryDate = new Date(valueYear, entryMonth, entryDay);
                 String type = rootNode.get("MT940").get("statements").get("statement"+i).get("line61").get("creditDebit").asText();
+                String fundCode = rootNode.get("MT940").get("statements").get("statement"+i).get("line61").get("fundCode").asText();
                 Double amount = Double.parseDouble(rootNode.get("MT940").get("statements").get("statement"+i).get("line61").get("amount").asText().replace(",","."));
-                String code = rootNode.get("MT940").get("statements").get("statement"+i).get("line61").get("identifierCode").asText();
+                String identifierCode = rootNode.get("MT940").get("statements").get("statement"+i).get("line61").get("identifierCode").asText();
                 String customerReference = rootNode.get("MT940").get("statements").get("statement"+i).get("line61").get("customerReference").asText();
                 String bankReference = rootNode.get("MT940").get("statements").get("statement"+i).get("line61").get("bankReference").asText();
                 String supplementaryDetails = rootNode.get("MT940").get("statements").get("statement"+i).get("line61").get("supplementaryDetails").asText();
-                uploadTransacion(reference, valueDate, entryDate, type, amount, code, customerReference, bankReference, supplementaryDetails);
+                String line1 = rootNode.get("MT940").get("statements").get("statement"+i).get("line86").get("line1").asText();
+                String line2 = rootNode.get("MT940").get("statements").get("statement"+i).get("line86").get("line2").asText();
+                String line3 = rootNode.get("MT940").get("statements").get("statement"+i).get("line86").get("line3").asText();
+                String line4 = rootNode.get("MT940").get("statements").get("statement"+i).get("line86").get("line4").asText();
+                String line5 = rootNode.get("MT940").get("statements").get("statement"+i).get("line86").get("line5").asText();
+                String line6 = rootNode.get("MT940").get("statements").get("statement"+i).get("line86").get("line6").asText();
+                uploadTransacion(reference, valueDate, entryDate, type, fundCode, amount, identifierCode, customerReference, bankReference, supplementaryDetails, line1, line2, line3, line4, line5, line6);
             }
 
         } catch (IOException | SQLException e) {
