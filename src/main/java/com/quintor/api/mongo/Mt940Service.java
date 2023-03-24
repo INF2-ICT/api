@@ -10,7 +10,7 @@ public class Mt940Service {
         this.mt940Repository = mt940Repository;
     }
 
-    public Mt940 insertMt940(Mt940 mt940) {
+    public mt940 insertMt940(mt940 mt940) {
         return mt940Repository.insert(mt940);
     }
 }

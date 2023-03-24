@@ -2,7 +2,7 @@ package com.quintor.api.mongo;
 
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import javax.persistence.Id;
+import jakarta.persistence.Id;
 
 
 //declares the collection of the database

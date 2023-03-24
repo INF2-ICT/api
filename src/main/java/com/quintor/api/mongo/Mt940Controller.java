@@ -45,7 +45,7 @@ public class Mt940Controller {
             return "wrong_user_id";
         }
         String document = new String(multipartFile.getBytes(), StandardCharsets.UTF_8);
-        mt940Service.insertMt940(new Mt940(document, userId));
+        mt940Service.insertMt940(new mt940(document, userId));
         return "success";
     }
 
@@ -62,3 +62,5 @@ public class Mt940Controller {
         }
         InputStream stream = new FileInputStream(file);
         return new MockMultipartFile("file", file.getName(), MediaType.TEXT_HTML_VALUE, stream);
+    }
+}
