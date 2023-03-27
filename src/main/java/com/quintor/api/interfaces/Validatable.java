@@ -1,9 +1,12 @@
 package com.quintor.api.interfaces;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-
-import java.io.IOException;
-
 public interface Validatable {
-    boolean validate(String schemaFileName, String input) throws JsonProcessingException;
+    /**
+     * Function to validate input with a schema
+     * @param schemaFileName name + extension of schema file
+     * @param input String input that needs to be validated
+     * @return boolean if validate is successful, false if not
+     * @throws Exception if error
+     */
+    boolean validate(String schemaFileName, String input) throws Exception;
 }
