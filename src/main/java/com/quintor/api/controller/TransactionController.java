@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.w3c.dom.Document;
 
 import java.util.List;
 
@@ -26,13 +27,13 @@ public class TransactionController {
     }
 
     // Define a REST endpoint for retrieving all transactions
-    @GetMapping("/get-all-transactions")
-    public List getAllTransactions(@RequestHeader String apikey) throws Exception {
+    @GetMapping("/get-all-transactions-json")
+    public List getAllTransactionsJson(@RequestHeader String apikey) throws Exception {
 
         // Check if the API key is valid
         if (checkApiKey(apikey)) {
             // Call the transaction service to retrieve all transactions
-            return transactionService.getAllTransactions();
+            return transactionService.getAllTransactionsJson();
         } else {
             // Throw an exception if the API key is invalid
             throw new Exception("Invalid API key");
@@ -40,13 +41,27 @@ public class TransactionController {
     }
 
     // Define a REST endpoint for retrieving a specific transaction
-    @GetMapping("/get-transaction")
-    public TransactionModel getTransaction(@RequestHeader String apikey, @RequestParam int id) throws Exception {
+    @GetMapping("/get-transaction-json")
+    public TransactionModel getTransactionJson(@RequestHeader String apikey, @RequestParam int id) throws Exception {
 
         // Check if the API key is valid
         if (checkApiKey(apikey)) {
             // Call the transaction service to retrieve the specified transaction
-            return transactionService.getTransaction(id);
+            return transactionService.getTransactionJson(id);
+        } else {
+            // Throw an exception if the API key is invalid
+            throw new Exception("Invalid API key");
+        }
+    }
+
+    // Define a REST endpoint for retrieving a specific transaction
+    @GetMapping("/get-all-transactions-xml")
+    public List getAllTransactionsXml(@RequestHeader String apikey) throws Exception {
+
+        // Check if the API key is valid
+        if (checkApiKey(apikey)) {
+            // Call the transaction service to retrieve the specified transaction
+            return transactionService.getAllTransactionsXml();
         } else {
             // Throw an exception if the API key is invalid
             throw new Exception("Invalid API key");
