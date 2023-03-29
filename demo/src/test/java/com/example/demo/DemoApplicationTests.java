@@ -1,11 +1,10 @@
-package com.quintor.api;
+package com.example.demo;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.mock.web.MockMultipartFile;
 
 @SpringBootTest
-class ApiApplicationTests {
+class DemoApplicationTests {
 
     @Test
     void contextLoads() {
