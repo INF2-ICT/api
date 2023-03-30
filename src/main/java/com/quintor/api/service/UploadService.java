@@ -5,11 +5,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import com.mongodb.client.MongoCollection;
 
+import com.mongodb.client.result.InsertOneResult;
 import com.quintor.api.util.NoSqlDatabaseUtil;
 import com.quintor.api.util.RelationalDatabaseUtil;
 
 import org.bson.types.ObjectId;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -199,14 +201,16 @@ public class UploadService {
         statement.executeQuery();
     }
 
-    public void uploadRaw()//File file)
+    public boolean uploadRaw(String mt940)
     {
-        //String raw = file.toString();
-
-        org.bson.Document balls = new org.bson.Document();
-        balls.append("title", "testvalue");
-        System.out.println(
-        mongoConnection.insertOne(balls));
+        org.bson.Document document = new org.bson.Document();
+        document.append("_id", new ObjectId());
+        document.append("MT940", mt940);
+        if (mongoConnection.insertOne(document).equals(InsertOneResult.class))
+        {
+            return true;
+        }
+        return false;
     }
 
     public Connection getSqlConnection() {
