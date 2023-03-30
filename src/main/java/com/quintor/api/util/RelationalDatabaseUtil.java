@@ -25,7 +25,7 @@ public class RelationalDatabaseUtil {
                 Class.forName(driver);
                 connection = DriverManager.getConnection(url, user, password);
             } catch (ClassNotFoundException e) {
-                e.printStackTrace();
+                e.getMessage();
             }
         }
 

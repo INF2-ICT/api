@@ -2,7 +2,13 @@ package com.quintor.api.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import com.mongodb.client.MongoCollection;
+
+import com.quintor.api.util.NoSqlDatabaseUtil;
 import com.quintor.api.util.RelationalDatabaseUtil;
+
+import org.bson.types.ObjectId;
 import org.springframework.stereotype.Service;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
@@ -11,6 +17,7 @@ import org.xml.sax.SAXException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 import java.sql.CallableStatement;
@@ -20,10 +27,13 @@ import java.sql.SQLException;
 
 @Service
 public class UploadService {
-    private final Connection connection;
+    private final Connection sqlConnection;
+
+    private final MongoCollection mongoConnection;
 
     public UploadService() throws SQLException {
-        this.connection = RelationalDatabaseUtil.getConnection();
+        this.sqlConnection = RelationalDatabaseUtil.getConnection();
+        this.mongoConnection = NoSqlDatabaseUtil.getConnection();
     }
 
     public void uploadXML (String xml) {
@@ -133,7 +143,7 @@ public class UploadService {
 
         String query = "{ CALL add_MT940(?, ?, ?, ?, ?, ?, ?, ?, ?)}";
 
-        CallableStatement statement = connection.prepareCall(query);
+        CallableStatement statement = sqlConnection.prepareCall(query);
 
         statement.setString(1, reference);
         statement.setString(2, account);
@@ -167,7 +177,7 @@ public class UploadService {
 
         String query = "{ CALL add_transaction(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)}";
 
-        CallableStatement statement = connection.prepareCall(query);
+        CallableStatement statement = sqlConnection.prepareCall(query);
 
         statement.setString(1, reference);
         statement.setDate(2, valueDate);
@@ -189,7 +199,22 @@ public class UploadService {
         statement.executeQuery();
     }
 
-    public Connection getConnection() {
-        return connection;
+    public void uploadRaw()//File file)
+    {
+        //String raw = file.toString();
+
+        org.bson.Document balls = new org.bson.Document();
+        balls.append("title", "testvalue");
+        System.out.println(
+        mongoConnection.insertOne(balls));
+    }
+
+    public Connection getSqlConnection() {
+        return sqlConnection;
+    }
+
+    public MongoCollection getMongoConnection()
+    {
+        return mongoConnection;
     }
 }
