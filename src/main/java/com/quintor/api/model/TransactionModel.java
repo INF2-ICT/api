@@ -19,27 +19,45 @@ public class TransactionModel {
 
     private TransactionType transactionType;
 
+    private String fund_code;
+
     private double amount_in_euro;
 
-    private String transactionCode;
+    private String identifier_code;
 
     private String owner_reference;
 
     private String beneficiary_reference;
 
-    private String additional_description;
+    private String supplementary_details;
 
-    public TransactionModel(int id, String transaction_reference, LocalDate value_date, LocalDate entry_date, TransactionType transactionType, double amount_in_euro, String transactionCode, String owner_reference, String beneficiary_reference, String additional_description) {
+    private String line1;
+    private String line2;
+    private String line3;
+    private String line4;
+    private String line5;
+    private String line6;
+    private String user_comment;
+
+    public TransactionModel(int id, String transaction_reference, LocalDate value_date, LocalDate entry_date, TransactionType transactionType, String fund_code, double amount_in_euro, String identifier_code, String owner_reference, String beneficiary_reference, String supplementary_details, String line1, String line2, String line3, String line4, String line5, String line6, String user_comment) {
         this.id = id;
         this.transaction_reference = transaction_reference;
         this.value_date = value_date;
         this.entry_date = entry_date;
         this.transactionType = transactionType;
+        this.fund_code = fund_code;
         this.amount_in_euro = amount_in_euro;
-        this.transactionCode = transactionCode;
+        this.identifier_code = identifier_code;
         this.owner_reference = owner_reference;
         this.beneficiary_reference = beneficiary_reference;
-        this.additional_description = additional_description;
+        this.supplementary_details = supplementary_details;
+        this.line1 = line1;
+        this.line2 = line2;
+        this.line3 = line3;
+        this.line4 = line4;
+        this.line5 = line5;
+        this.line6 = line6;
+        this.user_comment = user_comment;
     }
 
     public int getId() {
@@ -82,6 +100,14 @@ public class TransactionModel {
         this.transactionType = transactionType;
     }
 
+    public String getFund_code() {
+        return this.fund_code;
+    }
+
+    public void setFund_code(String fund_code) {
+        this.fund_code = fund_code;
+    }
+
     public double getAmount_in_euro() {
         return this.amount_in_euro;
     }
@@ -90,12 +116,12 @@ public class TransactionModel {
         this.amount_in_euro = amount_in_euro;
     }
 
-    public String getTransactionCode() {
-        return this.transactionCode;
+    public String getIdentifier_code() {
+        return this.identifier_code;
     }
 
-    public void setTransactionCode(String transactionCode) {
-        this.transactionCode = transactionCode;
+    public void setIdentifier_code(String identifier_code) {
+        this.identifier_code = identifier_code;
     }
 
     public String getOwner_reference() {
@@ -114,11 +140,67 @@ public class TransactionModel {
         this.beneficiary_reference = beneficiary_reference;
     }
 
-    public String getAdditional_description() {
-        return this.additional_description;
+    public String getSupplementary_details() {
+        return this.supplementary_details;
     }
 
-    public void setAdditional_description(String additional_description) {
-        this.additional_description = additional_description;
+    public void setSupplementary_details(String supplementary_details) {
+        this.supplementary_details = supplementary_details;
+    }
+
+    public String getLine1() {
+        return this.line1;
+    }
+
+    public void setLine1(String line1) {
+        this.line1 = line1;
+    }
+
+    public String getLine2() {
+        return this.line2;
+    }
+
+    public void setLine2(String line2) {
+        this.line2 = line2;
+    }
+
+    public String getLine3() {
+        return this.line3;
+    }
+
+    public void setLine3(String line3) {
+        this.line3 = line3;
+    }
+
+    public String getLine4() {
+        return this.line4;
+    }
+
+    public void setLine4(String line4) {
+        this.line4 = line4;
+    }
+
+    public String getLine5() {
+        return this.line5;
+    }
+
+    public void setLine5(String line5) {
+        this.line5 = line5;
+    }
+
+    public String getLine6() {
+        return this.line6;
+    }
+
+    public void setLine6(String line6) {
+        this.line6 = line6;
+    }
+
+    public String getUser_comment() {
+        return this.user_comment;
+    }
+
+    public void setUser_comment(String user_comment) {
+        this.user_comment = user_comment;
     }
 }
