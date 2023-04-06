@@ -13,6 +13,9 @@ import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
+import java.security.Key;
+import java.sql.Date;
+import java.util.HashMap;
 
 @RestController
 public class UploadController {
@@ -65,5 +68,13 @@ public class UploadController {
             return "success";
         }
         return "An error has occurred uploading the raw file";
+    }
+
+    @PostMapping("/post-cash")
+    public String addCash(@RequestParam("description") String description, @RequestParam("amount") String amount)
+    {
+        double amountD = Double.parseDouble(amount);
+        uploadService.addCash(amountD, description);
+        return "test";
     }
 }

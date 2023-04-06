@@ -11,7 +11,6 @@ import com.quintor.api.util.RelationalDatabaseUtil;
 
 import org.bson.types.ObjectId;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -19,7 +18,6 @@ import org.xml.sax.SAXException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 import java.sql.CallableStatement;
@@ -211,6 +209,24 @@ public class UploadService {
             return true;
         }
         return false;
+    }
+
+    public boolean addCash(double amount, String description)
+    {
+        long date = new java.util.Date().getTime();
+        Date sqlDate = new Date(date);
+
+        String query = "{ CALL add_cash(?, ?, ?)}";
+        try {
+            CallableStatement statement = sqlConnection.prepareCall(query);
+            statement.setDouble(1, amount);
+            statement.setString(2, description);
+            statement.setDate(3, sqlDate);
+            statement.executeQuery();
+        } catch (SQLException e) {
+            return false;
+        }
+        return true;
     }
 
     public Connection getSqlConnection() {
