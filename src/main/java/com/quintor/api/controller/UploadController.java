@@ -7,6 +7,12 @@ import com.quintor.api.util.XmlValidateUtil;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.file.Files;
 
 @RestController
 public class UploadController {
@@ -49,5 +55,15 @@ public class UploadController {
         } else {
             return "JSON is not valid";
         }
+    }
+
+    @PostMapping("/post-raw")
+    public String insertMt940(/**@RequestHeader String apikey,*/ @RequestParam("MT940File") String file)
+    {
+        if (uploadService.uploadRaw(file))
+        {
+            return "success";
+        }
+        return "An error has occurred uploading the raw file";
     }
 }
