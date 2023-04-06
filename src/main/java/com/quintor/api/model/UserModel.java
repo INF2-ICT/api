@@ -4,7 +4,6 @@ import org.springframework.data.annotation.Id;
 import org.springframework.lang.NonNull;
 
 public class UserModel {
-
     @Id
     private int id;
     @Id

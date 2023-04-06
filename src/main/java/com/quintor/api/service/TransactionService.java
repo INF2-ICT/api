@@ -48,14 +48,13 @@ public class TransactionService {
         return null;
     }
 
-    public String convertTransactionToJson (TransactionModel transaction) {
+    public JSONObject convertTransactionToJson (TransactionModel transaction) {
         return new JSONObject()
                 .put("id", transaction.getId())
                 .put("transaction_reference", transaction.getTransaction_reference())
                 .put("value_date", transaction.getValue_date().toString())
                 .put("transaction_type", transaction.getTransactionType().toString())
-                .put("amount_in_euro", transaction.getAmount_in_euro())
-                .toString();
+                .put("amount_in_euro", transaction.getAmount_in_euro());
     }
 
     public String convertTransactionToXml (TransactionModel transaction) {

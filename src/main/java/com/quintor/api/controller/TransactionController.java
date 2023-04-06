@@ -4,7 +4,8 @@ import com.quintor.api.interfaces.Validatable;
 import com.quintor.api.model.TransactionModel;
 import com.quintor.api.service.TransactionService;
 import com.quintor.api.util.JsonValidateUtil;
-import com.quintor.api.util.XmlValidateUtil;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -21,48 +22,50 @@ public class TransactionController {
         this.transactionService = transactionService;
     }
 
-    @GetMapping("/get-all-transactions")
-    public ArrayList<String> getAllUsers(String mode) throws Exception {
+    @GetMapping("/get-all-transactions-json")
+    public String getAllUsersJson() throws Exception {
 //        @RequestHeader String apikey
         //Get all transactions from database
         ArrayList<TransactionModel> transactions = transactionService.getAllTransactions();
 
-        //Check if mode was json/xml
-        if (mode.equalsIgnoreCase("json")) {
-            Validatable validator = new JsonValidateUtil();
-            ArrayList<String> jsonList = new ArrayList<>(); //List of all transactions in json objects
+        Validatable validator = new JsonValidateUtil();
+        JSONArray jsonList = new JSONArray();
 
-            //Loop through all transaction models
-            for (TransactionModel transaction : transactions) {
-                //Convert model to json
-                String jsonTransaction = transactionService.convertTransactionToJson(transaction);
-
-                //Validate transaction through schema
-                if (validator.validate("transaction.json", jsonTransaction)) {
-                    jsonList.add(jsonTransaction);
-                }
+        //Loop through all transaction models
+        for (TransactionModel transaction : transactions) {
+            JSONObject jsonTransaction = transactionService.convertTransactionToJson(transaction);
+//
+//          //Validate transaction through schema
+            if (validator.validate("transaction.json", jsonTransaction.toString())) {
+                jsonList.put(jsonTransaction);
             }
-
-            //Return list with transactions
-            return jsonList;
-        } else {
-            ArrayList<String> xmlList = new ArrayList<>(); //List of all transactions in xml objects
-            Validatable validator = new XmlValidateUtil();
-
-            //Loop through all transaction models
-            for (TransactionModel transaction : transactions) {
-                //Convert model to xml
-                String xmlTransaction = transactionService.convertTransactionToXml(transaction);
-
-                //Validate transaction through schema
-                if (validator.validate("transaction.xsd", xmlTransaction)) {
-                    xmlList.add(xmlTransaction);
-                }
-            }
-
-            //Return list with transactions
-            return xmlList;
         }
+
+        System.out.println(jsonList);
+        String test = jsonList.toString();
+        System.out.println(test);
+
+        return jsonList.toString();
+//        } else {
+//            ArrayList<String> xmlList = new ArrayList<>(); //List of all transactions in xml objects
+//            Validatable validator = new XmlValidateUtil();
+//
+//            //Loop through all transaction models
+//            for (TransactionModel transaction : transactions) {
+//                //Convert model to xml
+//                String xmlTransaction = transactionService.convertTransactionToXml(transaction);
+//
+//                //Validate transaction through schema
+//                if (validator.validate("transaction.xsd", xmlTransaction)) {
+//                    xmlList.add(xmlTransaction);
+//                }
+//            }
+//
+//            //Return list with transactions
+////            return xmlList;
+//        }
+
+//        return null;
     }
 
     @GetMapping("/get-transaction")
