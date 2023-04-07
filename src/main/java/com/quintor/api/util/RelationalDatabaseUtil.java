@@ -19,13 +19,13 @@ public class RelationalDatabaseUtil {
             String driver = "org.mariadb.jdbc.Driver";
             String url = "jdbc:mariadb://localhost:3306/quintor";
             String user = "root";
-            String password = "";
+            String password = "example";
 
             try {
                 Class.forName(driver);
                 connection = DriverManager.getConnection(url, user, password);
             } catch (ClassNotFoundException e) {
-                e.printStackTrace();
+                e.getMessage();
             }
         }
 

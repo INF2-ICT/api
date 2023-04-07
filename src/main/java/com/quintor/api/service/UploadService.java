@@ -2,7 +2,14 @@ package com.quintor.api.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import com.mongodb.client.MongoCollection;
+
+import com.mongodb.client.result.InsertOneResult;
+import com.quintor.api.util.NoSqlDatabaseUtil;
 import com.quintor.api.util.RelationalDatabaseUtil;
+
+import org.bson.types.ObjectId;
 import org.springframework.stereotype.Service;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
@@ -13,17 +20,18 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.io.StringReader;
-import java.sql.CallableStatement;
-import java.sql.Connection;
-import java.sql.Date;
-import java.sql.SQLException;
+import java.sql.*;
+
 
 @Service
 public class UploadService {
-    private final Connection connection;
+    private final Connection sqlConnection;
+
+    private final MongoCollection mongoConnection;
 
     public UploadService() throws SQLException {
-        this.connection = RelationalDatabaseUtil.getConnection();
+        this.sqlConnection = RelationalDatabaseUtil.getConnection();
+        this.mongoConnection = NoSqlDatabaseUtil.getConnection();
     }
 
     public void uploadXML (String xml) {
@@ -133,7 +141,7 @@ public class UploadService {
 
         String query = "{ CALL add_MT940(?, ?, ?, ?, ?, ?, ?, ?, ?)}";
 
-        CallableStatement statement = connection.prepareCall(query);
+        CallableStatement statement = sqlConnection.prepareCall(query);
 
         statement.setString(1, reference);
         statement.setString(2, account);
@@ -167,7 +175,7 @@ public class UploadService {
 
         String query = "{ CALL add_transaction(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)}";
 
-        CallableStatement statement = connection.prepareCall(query);
+        CallableStatement statement = sqlConnection.prepareCall(query);
 
         statement.setString(1, reference);
         statement.setDate(2, valueDate);
@@ -189,7 +197,43 @@ public class UploadService {
         statement.executeQuery();
     }
 
-    public Connection getConnection() {
-        return connection;
+    public boolean uploadRaw(String mt940)
+    {
+        org.bson.Document document = new org.bson.Document();
+        document.append("_id", new ObjectId());
+        document.append("MT940", mt940);
+        if (mongoConnection.insertOne(document).equals(InsertOneResult.class))
+        {
+            return true;
+        }
+        return false;
+    }
+
+    public boolean addCash(double amount, String description)
+    {
+        java.util.Date date = new java.util.Date();
+        long dateLong = date.getTime();
+        Timestamp sqlDate = new Timestamp(dateLong);
+
+        String query = "{ CALL add_cash(?, ?, ?)}";
+        try {
+            CallableStatement statement = sqlConnection.prepareCall(query);
+            statement.setDouble(1, amount);
+            statement.setString(2, description);
+            statement.setTimestamp(3, sqlDate);
+            statement.executeQuery();
+        } catch (SQLException e) {
+            return false;
+        }
+        return true;
+    }
+
+    public Connection getSqlConnection() {
+        return sqlConnection;
+    }
+
+    public MongoCollection getMongoConnection()
+    {
+        return mongoConnection;
     }
 }
