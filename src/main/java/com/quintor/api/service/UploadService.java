@@ -20,10 +20,8 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.io.StringReader;
-import java.sql.CallableStatement;
-import java.sql.Connection;
-import java.sql.Date;
-import java.sql.SQLException;
+import java.sql.*;
+
 
 @Service
 public class UploadService {
@@ -213,15 +211,16 @@ public class UploadService {
 
     public boolean addCash(double amount, String description)
     {
-        long date = new java.util.Date().getTime();
-        Date sqlDate = new Date(date);
+        java.util.Date date = new java.util.Date();
+        long dateLong = date.getTime();
+        Timestamp sqlDate = new Timestamp(dateLong);
 
         String query = "{ CALL add_cash(?, ?, ?)}";
         try {
             CallableStatement statement = sqlConnection.prepareCall(query);
             statement.setDouble(1, amount);
             statement.setString(2, description);
-            statement.setDate(3, sqlDate);
+            statement.setTimestamp(3, sqlDate);
             statement.executeQuery();
         } catch (SQLException e) {
             return false;
