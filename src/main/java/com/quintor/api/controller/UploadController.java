@@ -65,7 +65,7 @@ public class UploadController {
     {
         if (uploadService.uploadRaw(file))
         {
-            return "success";
+            return "Success";
         }
         return "An error has occurred uploading the raw file";
     }
