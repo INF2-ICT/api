@@ -71,7 +71,7 @@ public class UploadController {
     }
 
     @PostMapping("/post-cash")
-    public String addCash(@RequestParam("description") String description, @RequestParam("amount") String amount)
+    public String addCash(@RequestParam("amount") String amount, @RequestParam("description") String description)
     {
         double amountD = Double.parseDouble(amount);
         uploadService.addCash(amountD, description);
