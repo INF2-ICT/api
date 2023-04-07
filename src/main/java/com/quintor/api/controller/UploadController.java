@@ -7,15 +7,6 @@ import com.quintor.api.util.XmlValidateUtil;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.nio.file.Files;
-import java.security.Key;
-import java.sql.Date;
-import java.util.HashMap;
 
 @RestController
 public class UploadController {
@@ -28,8 +19,10 @@ public class UploadController {
 
     @PostMapping("/post-xml")
     public String postXml(@RequestParam("xml") String xml) throws Exception {//throws Exception{
-        //Check if api key is correct
-//        if (!checkApiKey(apikey)) {
+//        Check if API auth is correct
+//        if (checkApiKey(apikey)) {
+//            return userService.getAllUsers(); // [ {}, {} ]
+//        } else {
 //            throw new Exception("Invalid API key");
 //        }
 
@@ -44,9 +37,10 @@ public class UploadController {
 
     @PostMapping("/post-json")
     public String postJson(@RequestParam("json") String json) throws Exception {
-        /**@RequestHeader String apikey,*/
-        //Check if api key is correct
-//        if (!checkApiKey(apikey)) {
+//        Check if API auth is correct
+//        if (checkApiKey(apikey)) {
+//            return userService.getAllUsers(); // [ {}, {} ]
+//        } else {
 //            throw new Exception("Invalid API key");
 //        }
 

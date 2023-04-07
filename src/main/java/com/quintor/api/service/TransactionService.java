@@ -44,10 +44,6 @@ public class TransactionService {
         return listOfTransactions;
     }
 
-    public TransactionModel getTransaction () {
-        return null;
-    }
-
     public JSONObject convertTransactionToJson (TransactionModel transaction) {
         return new JSONObject()
                 .put("id", transaction.getId())
@@ -59,7 +55,6 @@ public class TransactionService {
 
     public String convertTransactionToXml (TransactionModel transaction) {
         return
-                "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
                 "<transaction>" +
                     "<id>" + transaction.getId() + "</id>" +
                     "<transaction_reference>" + transaction.getTransaction_reference() + "</transaction_reference>" +
