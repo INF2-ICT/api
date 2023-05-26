@@ -17,7 +17,7 @@ public class NoSqlDatabaseUtil {
 
     public static MongoCollection getConnection()
     {
-        ConnectionString connectionString = new ConnectionString("mongodb://root:example@localhost:27017");
+        ConnectionString connectionString = new ConnectionString("mongodb://root:example@mongodb:27017");
         MongoClientSettings mongoClientSettings = MongoClientSettings.builder()
                 .applyConnectionString(connectionString)
                 .build();
