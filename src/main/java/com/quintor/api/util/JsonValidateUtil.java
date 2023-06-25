@@ -8,9 +8,11 @@ import com.networknt.schema.JsonSchema;
 import com.networknt.schema.JsonSchemaFactory;
 import com.networknt.schema.SpecVersion;
 
+import com.networknt.schema.ValidationMessage;
 import com.quintor.api.interfaces.Validatable;
 
 import java.io.InputStream;
+import java.util.Set;
 
 public class JsonValidateUtil implements Validatable {
     @Override
@@ -23,11 +25,10 @@ public class JsonValidateUtil implements Validatable {
             ObjectMapper om = new ObjectMapper();
             JsonNode jsonNode = om.readTree(jsonToValidate);
 
-            schema.validate(jsonNode);
+            Set<ValidationMessage> errors = schema.validate(jsonNode);
 
-            return true;
+            return errors.isEmpty();
         } catch (Exception e) {
-            e.printStackTrace();
             return false;
         }
     }
