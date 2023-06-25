@@ -8,10 +8,7 @@ import com.quintor.api.util.XmlValidateUtil;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 
@@ -82,14 +79,30 @@ public class TransactionController {
         return xmlList;
     }
 
-    @GetMapping("/get-transaction")
-    public String getTransactionById(/* @RequestHeader String apikey, */ @RequestParam int id, String mode) throws Exception {
-//        Check if API auth is correct
-//        if (checkApiKey(apikey)) {
-//            return userService.getAllUsers(); // [ {}, {} ]
-//        } else {
-//            throw new Exception("Invalid API key");
-//        }
+    // Endpoint to get a transaction by ID (Transaction inzien)
+    @GetMapping("/transactions/{id}")
+    public TransactionModel getTransactionById(@PathVariable String id) {
         return null;
+        //return transactionService.getTransactionById(id);
+    }
+
+    // Endpoint to update an existing transaction (Opmerking toevoegen aan :86:)
+    @PutMapping("/transactions/{id}")
+    public TransactionModel updateTransaction(@PathVariable String id, @RequestBody TransactionModel updatedTransaction) {
+        return null;
+        //transactionService.updateTransaction(id, updatedTransaction);
+    }
+
+    // Endpoint to create a new transaction (kasgeld module?)
+    @PostMapping("/transactions")
+    public TransactionModel createTransaction(@RequestBody TransactionModel transaction) {
+        return null;
+        //return transactionService.createTransaction(transaction);
+    }
+
+    // Endpoint to delete a transaction (Transaction inzien)
+    @DeleteMapping("/transactions/{id}")
+    public void deleteTransaction(@PathVariable String id) {
+        //transactionService.deleteTransaction(id);
     }
 }
