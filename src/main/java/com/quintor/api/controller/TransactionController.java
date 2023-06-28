@@ -1,6 +1,7 @@
 package com.quintor.api.controller;
 
 import com.quintor.api.interfaces.Validatable;
+import com.quintor.api.model.SingleTransactionModel;
 import com.quintor.api.model.TransactionModel;
 import com.quintor.api.service.TransactionService;
 import com.quintor.api.util.JsonValidateUtil;
@@ -25,12 +26,6 @@ public class TransactionController {
 
     @GetMapping("/get-all-transactions-json")
     public String getAllTransactionJson(/* @RequestHeader String apikey */) throws Exception {
-//        Check if API auth is correct
-//        if (checkApiKey(apikey)) {
-//            return userService.getAllUsers(); // [ {}, {} ]
-//        } else {
-//            throw new Exception("Invalid API key");
-//        }
         //Get all transactions from database
         ArrayList<TransactionModel> transactions = transactionService.getAllTransactions();
         Validatable validator = new JsonValidateUtil();
@@ -52,13 +47,6 @@ public class TransactionController {
 
     @GetMapping("/get-all-transactions-xml")
     public ArrayList<String> getAllTransactionXml(/* @RequestHeader String apikey */) throws Exception {
-//        Check if API auth is correct
-//        if (checkApiKey(apikey)) {
-//            return userService.getAllUsers(); // [ {}, {} ]
-//        } else {
-//            throw new Exception("Invalid API key");
-//        }
-
         //Get all transactions from database
         ArrayList<TransactionModel> transactions = transactionService.getAllTransactions();
         Validatable validator = new XmlValidateUtil();
@@ -79,30 +67,22 @@ public class TransactionController {
         return xmlList;
     }
 
-    // Endpoint to get a transaction by ID (Transaction inzien)
-    @GetMapping("/transactions/{id}")
-    public TransactionModel getTransactionById(@PathVariable String id) {
-        return null;
-        //return transactionService.getTransactionById(id);
-    }
+    @GetMapping("/transaction/{mode}/{id}")
+    public String getSingleJsonTransaction(@PathVariable String mode, @PathVariable int id) throws Exception {
+        SingleTransactionModel transaction = transactionService.getSingleTransaction(id);
+        if (transaction.getDescription() == null || transaction.getDescription().equals("")) {
+            transaction.setDescription("Geen beschrijving");
+        }
 
-    // Endpoint to update an existing transaction (Opmerking toevoegen aan :86:)
-    @PutMapping("/transactions/{id}")
-    public TransactionModel updateTransaction(@PathVariable String id, @RequestBody TransactionModel updatedTransaction) {
-        return null;
-        //transactionService.updateTransaction(id, updatedTransaction);
-    }
+        if (mode.toLowerCase().equals("json")) {
+            JSONArray jsonList = new JSONArray();
+            JSONObject jsonTransaction = transactionService.convertSingleTransactionToJson(transaction);
+            jsonList.put(jsonTransaction);
+            return jsonList.toString();
+        } else if (mode.equals("xml")){
+            return transactionService.convertSingleTransactionToXml(transaction);
+        }
 
-    // Endpoint to create a new transaction (kasgeld module?)
-    @PostMapping("/transactions")
-    public TransactionModel createTransaction(@RequestBody TransactionModel transaction) {
         return null;
-        //return transactionService.createTransaction(transaction);
-    }
-
-    // Endpoint to delete a transaction (Transaction inzien)
-    @DeleteMapping("/transactions/{id}")
-    public void deleteTransaction(@PathVariable String id) {
-        //transactionService.deleteTransaction(id);
     }
 }

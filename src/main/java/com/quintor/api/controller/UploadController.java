@@ -19,13 +19,6 @@ public class UploadController {
 
     @PostMapping("/post-xml")
     public String postXml(@RequestParam("xml") String xml) throws Exception {//throws Exception{
-//        Check if API auth is correct
-//        if (checkApiKey(apikey)) {
-//            return userService.getAllUsers(); // [ {}, {} ]
-//        } else {
-//            throw new Exception("Invalid API key");
-//        }
-
         Validatable validator = new XmlValidateUtil();
         if (validator.validate("mt940.xsd", xml)) {
             uploadService.uploadXML(xml); //Upload to database
@@ -37,13 +30,6 @@ public class UploadController {
 
     @PostMapping("/post-json")
     public String postJson(@RequestParam("json") String json) throws Exception {
-//        Check if API auth is correct
-//        if (checkApiKey(apikey)) {
-//            return userService.getAllUsers(); // [ {}, {} ]
-//        } else {
-//            throw new Exception("Invalid API key");
-//        }
-
         //Validate with schema
         Validatable validator = new JsonValidateUtil();
         if (validator.validate("mt940.json", json)) {
