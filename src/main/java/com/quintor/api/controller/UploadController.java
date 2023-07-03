@@ -49,12 +49,4 @@ public class UploadController {
         }
         return "An error has occurred uploading the raw file";
     }
-
-    @PostMapping("/post-cash")
-    public String addCash(@RequestParam("amount") String amount, @RequestParam("description") String description)
-    {
-        double amountD = Double.parseDouble(amount);
-        uploadService.addCash(amountD, description);
-        return "test";
-    }
 }

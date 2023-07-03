@@ -1,5 +1,8 @@
 package com.quintor.api.controller;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.quintor.api.enums.TransactionType;
 import com.quintor.api.interfaces.Validatable;
 import com.quintor.api.model.SingleTransactionModel;
 import com.quintor.api.model.TransactionModel;
@@ -10,7 +13,13 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.w3c.dom.Document;
+import org.xml.sax.InputSource;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import java.io.StringReader;
+import java.time.LocalDate;
 import java.util.ArrayList;
 
 import static com.quintor.api.util.ProjectConfigUtil.checkApiKey;
@@ -97,7 +106,17 @@ public class TransactionController {
             System.out.println("json");
 
             if (validator.validate("newTransaction.json", transactionData)) {
-                return true;
+                ObjectMapper objectMapper = new ObjectMapper();
+                JsonNode jsonNode = objectMapper.readTree(transactionData);
+
+                // Retrieving the values from the JSON object
+                double amountInEuro = jsonNode.get("amountInEuro").asDouble();
+                String transactionReference = jsonNode.get("transactionReference").asText();
+                LocalDate date = LocalDate.parse(jsonNode.get("date").asText());
+                String transactionType = jsonNode.get("transactionType").asText();
+                String description = jsonNode.get("description").asText();
+
+                return transactionService.createSingleTransaction(amountInEuro, transactionReference, date, TransactionType.valueOf(transactionType), description);
             }
         } else {
             Validatable validator = new XmlValidateUtil();
@@ -105,10 +124,18 @@ public class TransactionController {
             System.out.println("xml");
 
             if (validator.validate("newTransaction.xsd", transactionData)) {
-                return true;
+                DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+                DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
+                Document document = documentBuilder.parse(new InputSource(new StringReader(transactionData)));
+
+                double amountInEuro = Double.parseDouble(document.getElementsByTagName("amount_in_euro").item(0).getTextContent());
+                String transactionReference = document.getElementsByTagName("transaction_reference").item(0).getTextContent();
+                String valueDate = document.getElementsByTagName("value_date").item(0).getTextContent();
+                String transactionType = document.getElementsByTagName("transaction_type").item(0).getTextContent();
+                String description = document.getElementsByTagName("description").item(0).getTextContent();
+
+                return transactionService.createSingleTransaction(amountInEuro, transactionReference, LocalDate.parse(valueDate), TransactionType.valueOf(transactionType), description);
             }
-
-
         }
         return false;
     }

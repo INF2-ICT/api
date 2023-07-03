@@ -5,6 +5,7 @@ import com.quintor.api.model.SingleTransactionModel;
 import com.quintor.api.model.TransactionModel;
 import com.quintor.api.util.RelationalDatabaseUtil;
 import org.json.JSONObject;
+import org.springframework.cglib.core.Local;
 import org.springframework.stereotype.Service;
 
 import java.sql.*;
@@ -75,6 +76,29 @@ public class TransactionService {
 
         // Return the SingleTransactionModel object
         return transactionModel;
+    }
+
+    public boolean createSingleTransaction(double amount_in_euro, String transaction_reference, LocalDate value_date, TransactionType type, String user_comment) throws SQLException {
+        String query = "{ CALL insert_transaction(?, ?, ?, ?, ?) }";
+
+        try {
+            Connection sqlConnection = RelationalDatabaseUtil.getConnection();
+
+            CallableStatement statement = sqlConnection.prepareCall(query);
+
+            statement.setDouble(1, amount_in_euro);
+            statement.setString(2, transaction_reference);
+            statement.setDate(3, Date.valueOf(value_date));
+            statement.setString(4, String.valueOf(type));
+            statement.setString(5, user_comment);
+
+            statement.executeQuery();
+
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 
     public JSONObject convertTransactionToJson (TransactionModel transaction) {
