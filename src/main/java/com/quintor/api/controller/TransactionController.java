@@ -85,4 +85,31 @@ public class TransactionController {
 
         return null;
     }
+
+    @PostMapping("/transaction/{mode}")
+    public boolean createTransaction(@PathVariable String mode, @RequestParam("transactionData") String transactionData) throws Exception {
+        System.out.println(transactionData);
+        System.out.println(mode);
+
+        if (mode.toLowerCase().equals("json")) {
+            Validatable validator = new JsonValidateUtil();
+
+            System.out.println("json");
+
+            if (validator.validate("newTransaction.json", transactionData)) {
+                return true;
+            }
+        } else {
+            Validatable validator = new XmlValidateUtil();
+
+            System.out.println("xml");
+
+            if (validator.validate("newTransaction.xsd", transactionData)) {
+                return true;
+            }
+
+
+        }
+        return false;
+    }
 }
