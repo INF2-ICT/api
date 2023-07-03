@@ -101,6 +101,25 @@ public class TransactionService {
         }
     }
 
+    public boolean deleteSingleTransaction(int id) {
+        String query = "{ CALL delete_transaction(?) }";
+
+        try {
+            Connection sqlConnection = RelationalDatabaseUtil.getConnection();
+
+            CallableStatement statement = sqlConnection.prepareCall(query);
+
+            statement.setInt(1, id);
+
+            statement.executeQuery();
+
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
     public JSONObject convertTransactionToJson (TransactionModel transaction) {
         return new JSONObject()
                 .put("id", transaction.getId())

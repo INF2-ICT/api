@@ -97,13 +97,8 @@ public class TransactionController {
 
     @PostMapping("/transaction/{mode}")
     public boolean createTransaction(@PathVariable String mode, @RequestParam("transactionData") String transactionData) throws Exception {
-        System.out.println(transactionData);
-        System.out.println(mode);
-
         if (mode.toLowerCase().equals("json")) {
             Validatable validator = new JsonValidateUtil();
-
-            System.out.println("json");
 
             if (validator.validate("newTransaction.json", transactionData)) {
                 ObjectMapper objectMapper = new ObjectMapper();
@@ -121,8 +116,6 @@ public class TransactionController {
         } else {
             Validatable validator = new XmlValidateUtil();
 
-            System.out.println("xml");
-
             if (validator.validate("newTransaction.xsd", transactionData)) {
                 DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
                 DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
@@ -138,5 +131,10 @@ public class TransactionController {
             }
         }
         return false;
+    }
+
+    @DeleteMapping("/transaction/{id}")
+    public boolean deleteTransaction (@PathVariable String id) {
+        return transactionService.deleteSingleTransaction(Integer.parseInt(id));
     }
 }
