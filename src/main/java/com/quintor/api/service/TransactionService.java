@@ -120,6 +120,26 @@ public class TransactionService {
         }
     }
 
+    public boolean updateSingleTransactionDescription(int id, String description) {
+        String query = "{ CALL update_transaction_comment(?, ?) }";
+
+        try {
+            Connection sqlConnection = RelationalDatabaseUtil.getConnection();
+
+            CallableStatement statement = sqlConnection.prepareCall(query);
+
+            statement.setInt(1, id);
+            statement.setString(2, description);
+
+            statement.executeQuery();
+
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
     public JSONObject convertTransactionToJson (TransactionModel transaction) {
         return new JSONObject()
                 .put("id", transaction.getId())

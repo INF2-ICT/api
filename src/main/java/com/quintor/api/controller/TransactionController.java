@@ -137,4 +137,37 @@ public class TransactionController {
     public boolean deleteTransaction (@PathVariable String id) {
         return transactionService.deleteSingleTransaction(Integer.parseInt(id));
     }
+
+    @PutMapping("/transaction/{mode}/{id}")
+    public boolean updateTransaction(@PathVariable String id, @PathVariable String mode, @RequestParam("description") String description) throws Exception {
+
+        if (mode.toLowerCase().equals("json")) {
+            Validatable validator = new JsonValidateUtil();
+
+            if (validator.validate("description.json", description)) {
+                ObjectMapper objectMapper = new ObjectMapper();
+                JsonNode jsonNode = objectMapper.readTree(description);
+
+                // Retrieving the values from the JSON object
+                String singleDescription = jsonNode.get("description").asText();
+
+                return transactionService.updateSingleTransactionDescription(Integer.parseInt(id), singleDescription);
+            }
+        } else {
+            Validatable validator = new XmlValidateUtil();
+
+            if (validator.validate("description.xsd", description)) {
+                DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+                DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
+                Document document = documentBuilder.parse(new InputSource(new StringReader(description)));
+
+                String singleDescription = document.getElementsByTagName("description").item(0).getTextContent();
+
+                return transactionService.updateSingleTransactionDescription(Integer.parseInt(id), singleDescription);
+            }
+        }
+
+        return false;
+    }
+
 }
