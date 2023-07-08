@@ -1,6 +1,10 @@
 package com.quintor.api.controller;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.quintor.api.enums.TransactionType;
 import com.quintor.api.interfaces.Validatable;
+import com.quintor.api.model.SingleTransactionModel;
 import com.quintor.api.model.TransactionModel;
 import com.quintor.api.service.TransactionService;
 import com.quintor.api.util.JsonValidateUtil;
@@ -8,11 +12,14 @@ import com.quintor.api.util.XmlValidateUtil;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.w3c.dom.Document;
+import org.xml.sax.InputSource;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import java.io.StringReader;
+import java.time.LocalDate;
 import java.util.ArrayList;
 
 import static com.quintor.api.util.ProjectConfigUtil.checkApiKey;
@@ -28,12 +35,6 @@ public class TransactionController {
 
     @GetMapping("/get-all-transactions-json")
     public String getAllTransactionJson(/* @RequestHeader String apikey */) throws Exception {
-//        Check if API auth is correct
-//        if (checkApiKey(apikey)) {
-//            return userService.getAllUsers(); // [ {}, {} ]
-//        } else {
-//            throw new Exception("Invalid API key");
-//        }
         //Get all transactions from database
         ArrayList<TransactionModel> transactions = transactionService.getAllTransactions();
         Validatable validator = new JsonValidateUtil();
@@ -55,13 +56,6 @@ public class TransactionController {
 
     @GetMapping("/get-all-transactions-xml")
     public ArrayList<String> getAllTransactionXml(/* @RequestHeader String apikey */) throws Exception {
-//        Check if API auth is correct
-//        if (checkApiKey(apikey)) {
-//            return userService.getAllUsers(); // [ {}, {} ]
-//        } else {
-//            throw new Exception("Invalid API key");
-//        }
-
         //Get all transactions from database
         ArrayList<TransactionModel> transactions = transactionService.getAllTransactions();
         Validatable validator = new XmlValidateUtil();
@@ -82,14 +76,98 @@ public class TransactionController {
         return xmlList;
     }
 
-    @GetMapping("/get-transaction")
-    public String getTransactionById(/* @RequestHeader String apikey, */ @RequestParam int id, String mode) throws Exception {
-//        Check if API auth is correct
-//        if (checkApiKey(apikey)) {
-//            return userService.getAllUsers(); // [ {}, {} ]
-//        } else {
-//            throw new Exception("Invalid API key");
-//        }
+    @GetMapping("/transaction/{mode}/{id}")
+    public String getSingleJsonTransaction(@PathVariable String mode, @PathVariable int id) throws Exception {
+        SingleTransactionModel transaction = transactionService.getSingleTransaction(id);
+        if (transaction.getDescription() == null || transaction.getDescription().equals("")) {
+            transaction.setDescription("Geen beschrijving");
+        }
+
+        if (mode.toLowerCase().equals("json")) {
+            JSONArray jsonList = new JSONArray();
+            JSONObject jsonTransaction = transactionService.convertSingleTransactionToJson(transaction);
+            jsonList.put(jsonTransaction);
+            return jsonList.toString();
+        } else if (mode.equals("xml")){
+            return transactionService.convertSingleTransactionToXml(transaction);
+        }
+
         return null;
     }
+
+    @PostMapping("/transaction/{mode}")
+    public boolean createTransaction(@PathVariable String mode, @RequestParam("transactionData") String transactionData) throws Exception {
+        if (mode.toLowerCase().equals("json")) {
+            Validatable validator = new JsonValidateUtil();
+
+            if (validator.validate("newTransaction.json", transactionData)) {
+                ObjectMapper objectMapper = new ObjectMapper();
+                JsonNode jsonNode = objectMapper.readTree(transactionData);
+
+                // Retrieving the values from the JSON object
+                double amountInEuro = jsonNode.get("amountInEuro").asDouble();
+                String transactionReference = jsonNode.get("transactionReference").asText();
+                LocalDate date = LocalDate.parse(jsonNode.get("date").asText());
+                String transactionType = jsonNode.get("transactionType").asText();
+                String description = jsonNode.get("description").asText();
+
+                return transactionService.createSingleTransaction(amountInEuro, transactionReference, date, TransactionType.valueOf(transactionType), description);
+            }
+        } else {
+            Validatable validator = new XmlValidateUtil();
+
+            if (validator.validate("newTransaction.xsd", transactionData)) {
+                DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+                DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
+                Document document = documentBuilder.parse(new InputSource(new StringReader(transactionData)));
+
+                double amountInEuro = Double.parseDouble(document.getElementsByTagName("amount_in_euro").item(0).getTextContent());
+                String transactionReference = document.getElementsByTagName("transaction_reference").item(0).getTextContent();
+                String valueDate = document.getElementsByTagName("value_date").item(0).getTextContent();
+                String transactionType = document.getElementsByTagName("transaction_type").item(0).getTextContent();
+                String description = document.getElementsByTagName("description").item(0).getTextContent();
+
+                return transactionService.createSingleTransaction(amountInEuro, transactionReference, LocalDate.parse(valueDate), TransactionType.valueOf(transactionType), description);
+            }
+        }
+        return false;
+    }
+
+    @DeleteMapping("/transaction/{id}")
+    public boolean deleteTransaction (@PathVariable String id) {
+        return transactionService.deleteSingleTransaction(Integer.parseInt(id));
+    }
+
+    @PutMapping("/transaction/{mode}/{id}")
+    public boolean updateTransaction(@PathVariable String id, @PathVariable String mode, @RequestParam("description") String description) throws Exception {
+
+        if (mode.toLowerCase().equals("json")) {
+            Validatable validator = new JsonValidateUtil();
+
+            if (validator.validate("description.json", description)) {
+                ObjectMapper objectMapper = new ObjectMapper();
+                JsonNode jsonNode = objectMapper.readTree(description);
+
+                // Retrieving the values from the JSON object
+                String singleDescription = jsonNode.get("description").asText();
+
+                return transactionService.updateSingleTransactionDescription(Integer.parseInt(id), singleDescription);
+            }
+        } else {
+            Validatable validator = new XmlValidateUtil();
+
+            if (validator.validate("description.xsd", description)) {
+                DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+                DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
+                Document document = documentBuilder.parse(new InputSource(new StringReader(description)));
+
+                String singleDescription = document.getElementsByTagName("description").item(0).getTextContent();
+
+                return transactionService.updateSingleTransactionDescription(Integer.parseInt(id), singleDescription);
+            }
+        }
+
+        return false;
+    }
+
 }

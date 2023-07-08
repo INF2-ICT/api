@@ -17,7 +17,7 @@ public class RelationalDatabaseUtil {
             return connection;
         } else {
             String driver = "org.mariadb.jdbc.Driver";
-            String url = "jdbc:mariadb://localhost:3306/quintor";
+            String url = "jdbc:mariadb://mariadb:3306/quintor";
             String user = "root";
             String password = "example";
 

@@ -23,7 +23,6 @@ public class XmlValidateUtil implements Validatable {
 
             return true;
         } catch(Exception e) {
-            e.printStackTrace();
             return false;
         }
     }
